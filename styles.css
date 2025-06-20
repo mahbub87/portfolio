@@ -27,7 +27,7 @@ body {
 
 #LeftPanel,
 #RightPanel {
-  width: 85vh;
+  width: 70vh;
   height: 100%;
   overflow-y: auto;
 }
