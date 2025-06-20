@@ -1,41 +1,33 @@
+// --- Navigation ---
+const navItems = document.querySelectorAll('.NavItem');
+const sections = document.querySelectorAll('.Section');
 
-document.querySelectorAll('.NavItem').forEach(item => {
+navItems.forEach(item => {
   item.addEventListener('click', () => {
     const sectionId = item.getAttribute('DataSection');
     const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
   });
 });
-   const navItems = document.querySelectorAll('.NavItem');
-  const sections = document.querySelectorAll('.Section');
 
-  // Scroll to section on click
-  navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const sectionId = item.getAttribute('DataSection');
-      const section = document.getElementById(sectionId);
-      if (section) section.scrollIntoView({ behavior: 'smooth' });
-    });
+// IntersectionObserver (unchanged)
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    const navItem = document.querySelector(`.NavItem[DataSection="${entry.target.id}"]`);
+    if (entry.isIntersecting && navItem) {
+      navItems.forEach(item => item.classList.remove('active'));
+      navItem.classList.add('active');
+    }
   });
+}, {
+  root: null,
+  rootMargin: '0px 0px -40% 0px',
+  threshold: 0.1
+});
 
-  // Observer to detect active section
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      const navItem = document.querySelector(`.NavItem[DataSection="${entry.target.id}"]`);
-      if (entry.isIntersecting) {
-        navItems.forEach(item => item.classList.remove('active'));
-        if (navItem) navItem.classList.add('active');
-      }
-    });
-  }, {
-    root: null,
-    rootMargin: '0px 0px -40% 0px',
-    threshold: 0.1 // 60% of the section in view
-  });
+sections.forEach(section => observer.observe(section));
 
-  sections.forEach(section => observer.observe(section));
+// --- Canvas Particle System ---
 const canvas = document.getElementById("ParticleCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -43,6 +35,8 @@ let particles = [];
 const isLowPower = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
 const numParticles = isLowPower ? 150 : 400;
 let isMouseDown = false;
+let lastFrameTime = 0;
+const maxFPS = 45; // Throttle to 45 FPS
 
 const mouse = {
   x: null,
@@ -50,10 +44,21 @@ const mouse = {
   radius: 250,
 };
 
-window.addEventListener("mousemove", (e) => {
+const throttle = (fn, limit) => {
+  let waiting = false;
+  return (...args) => {
+    if (!waiting) {
+      requestAnimationFrame(() => fn(...args));
+      waiting = true;
+      setTimeout(() => (waiting = false), limit);
+    }
+  };
+};
+
+window.addEventListener("mousemove", throttle((e) => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
-});
+}, 16)); // ~60FPS max
 
 window.addEventListener("mouseout", () => {
   mouse.x = null;
@@ -67,8 +72,7 @@ window.addEventListener("mouseup", () => {
 });
 
 function resizeCanvas() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2); // max 2x
-
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
   canvas.style.width = window.innerWidth + "px";
@@ -76,7 +80,6 @@ function resizeCanvas() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.scale(dpr, dpr);
 }
-
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
@@ -100,15 +103,13 @@ class Particle {
     this.baseDX = Math.cos(angle) * speed;
     this.baseDY = Math.sin(angle) * speed;
 
-    // Assign a fixed color per particle
     const colorOptions = [
-      [137, 207, 240], // baby blue
-      [173, 216, 230], // light cyan
-      [186, 85, 211],  // medium orchid
-      [144, 238, 144], // light green
+      [137, 207, 240],
+      [173, 216, 230],
+      [186, 85, 211],
+      [144, 238, 144],
     ];
-    [this.r, this.g, this.b] =
-      colorOptions[Math.floor(Math.random() * colorOptions.length)];
+    [this.r, this.g, this.b] = colorOptions[Math.floor(Math.random() * colorOptions.length)];
   }
 
   update() {
@@ -118,21 +119,18 @@ class Particle {
     if (mouse.x !== null && mouse.y !== null) {
       let dx = mouse.x - this.x;
       let dy = mouse.y - this.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
+      let distSq = dx * dx + dy * dy;
 
-      if (dist < mouse.radius) {
+      if (distSq < mouse.radius * mouse.radius) {
+        let dist = Math.sqrt(distSq);
         let force = (mouse.radius - dist) / mouse.radius;
         let angle = Math.atan2(dy, dx);
 
         if (isMouseDown) {
-
-          const centripetalForce = force * 0.1;
-          this.ax += Math.cos(angle) * centripetalForce;
-          this.ay += Math.sin(angle) * centripetalForce;
-
-          const tangentialForce = force * 0.15;
-          this.ax += Math.cos(angle + Math.PI / 2) * tangentialForce;
-          this.ay += Math.sin(angle + Math.PI / 2) * tangentialForce;
+          const cForce = force * 0.1;
+          const tForce = force * 0.15;
+          this.ax += Math.cos(angle) * cForce + Math.cos(angle + Math.PI / 2) * tForce;
+          this.ay += Math.sin(angle) * cForce + Math.sin(angle + Math.PI / 2) * tForce;
         } else {
           this.ax += Math.cos(angle) * force * 0.05;
           this.ay += Math.sin(angle) * force * 0.05;
@@ -140,17 +138,12 @@ class Particle {
       }
     }
 
-    this.vx += this.baseDX;
-    this.vy += this.baseDY;
-
-    this.vx += this.ax;
-    this.vy += this.ay;
-
+    this.vx += this.baseDX + this.ax;
+    this.vy += this.baseDY + this.ay;
     this.ax *= 0.7;
     this.ay *= 0.7;
     this.vx *= 0.94;
     this.vy *= 0.94;
-
     this.x += this.vx;
     this.y += this.vy;
 
@@ -191,29 +184,26 @@ class Particle {
 }
 
 function drawConnections() {
-  const maxConnections = 10;
+  const maxConnections = 5;
   const connectionCount = new Array(particles.length).fill(0);
 
   for (let i = 0; i < particles.length; i++) {
+    const p1 = particles[i];
     if (connectionCount[i] >= maxConnections) continue;
 
     for (let j = i + 1; j < particles.length; j++) {
-      if (
-        connectionCount[i] >= maxConnections ||
-        connectionCount[j] >= maxConnections
-      )
-        continue;
+      if (connectionCount[j] >= maxConnections) continue;
 
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dx = p1.x - particles[j].x;
+      const dy = p1.y - particles[j].y;
+      const distSq = dx * dx + dy * dy;
 
-      if (dist < 100) {
-        const alpha = 1 - dist / 100;
+      if (distSq < 10000) {
+        const alpha = 1 - distSq / 10000;
         ctx.beginPath();
         ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.2})`;
         ctx.lineWidth = 1;
-        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(particles[j].x, particles[j].y);
         ctx.stroke();
 
@@ -224,7 +214,6 @@ function drawConnections() {
   }
 }
 
-// Initialize particles
 for (let i = 0; i < numParticles; i++) {
   particles.push(new Particle());
 }
@@ -232,23 +221,26 @@ for (let i = 0; i < numParticles; i++) {
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   mouse.radius = isMouseDown ? 450 : 250;
-  particles.forEach((p) => {
-    p.update();
-    p.draw();
-  });
-  drawConnections();
-  requestAnimationFrame(animate);
-}
 
-animate();
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw();
+  }
+
+  drawConnections();
+  requestAnimationFrame(animate); 
+}
+requestAnimationFrame(animate);
+
 
 window.addEventListener("click", () => {
   if (mouse.x !== null && mouse.y !== null) {
     particles.forEach((p) => {
       const dx = p.x - mouse.x;
       const dy = p.y - mouse.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < mouse.radius) {
+      const distSq = dx * dx + dy * dy;
+      if (distSq < mouse.radius * mouse.radius) {
+        const dist = Math.sqrt(distSq);
         const angle = Math.atan2(dy, dx);
         const burstForce = ((mouse.radius - dist) / mouse.radius) * 30;
         p.vx += Math.cos(angle) * burstForce;
