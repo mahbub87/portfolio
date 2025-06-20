@@ -40,7 +40,8 @@ const canvas = document.getElementById("ParticleCanvas");
 const ctx = canvas.getContext("2d");
 
 let particles = [];
-const numParticles = 400;
+const isLowPower = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+const numParticles = isLowPower ? 150 : 400;
 let isMouseDown = false;
 
 const mouse = {
@@ -66,7 +67,8 @@ window.addEventListener("mouseup", () => {
 });
 
 function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2); // max 2x
+
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
   canvas.style.width = window.innerWidth + "px";
