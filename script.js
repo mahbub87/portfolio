@@ -106,8 +106,7 @@ class Particle {
     const colorOptions = [
       [137, 207, 240],
       [173, 216, 230],
-      [186, 85, 211],
-      [144, 238, 144],
+    
     ];
     [this.r, this.g, this.b] = colorOptions[Math.floor(Math.random() * colorOptions.length)];
   }

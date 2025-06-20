@@ -27,7 +27,7 @@ body {
 
 #LeftPanel,
 #RightPanel {
-  width: 65vh;
+  width: 85vh;
   height: 100%;
   overflow-y: auto;
 }
@@ -52,7 +52,7 @@ h1 {
 h2 {
   font-size: 2vh;
   margin: 0 0 2vh 0;
-  color: white;
+   color: #e5e7eb;
   font-weight: normal;
   pointer-events: auto;
 }
@@ -60,7 +60,7 @@ h2 {
 p {
   font-size: 1.6vh;
   margin: 0 0 1.5vh 0;
-  color: gray;
+  color: #cbd5e1;
   line-height: 2.8vh;
   pointer-events: auto;
 }
@@ -105,6 +105,7 @@ p {
 
 .NavItemText {
   font-weight: 600;
+  color: #e2e8f0;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 .NavItem.active .NavItemText {
@@ -127,6 +128,10 @@ p {
     transform: scale(1.4);
   }
 }
+.NavItem:hover .NavItemText,
+.NavItem.active .NavItemText {
+  color: #38bdf8; /* sky-400 for better visibility */
+}
 .Project {
   margin-bottom: 2vh;
   padding: 1.5vh;
@@ -146,7 +151,7 @@ p {
 .Project p {
   user-select: none;
   font-size: 1.5vh;
-  color: gray;
+  color: #94a3b8;
   line-height: 2.5vh;
   margin-bottom: 0.5vh;
 }
@@ -217,6 +222,7 @@ m {
   padding-bottom: 95vh;
   font-size: 1.25vh;
   line-height: 2.2vh;
+  color: #a1a1aa;
 }
 
 #ParticleCanvas {
@@ -229,4 +235,79 @@ m {
   background: #090d18;
   pointer-events: none;
   display: block;
+}
+
+
+@media (max-width: 768px) {
+  #Container {
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5vh;
+    height: auto;
+    gap: 4vh;
+    padding: 0 2vw;
+  }
+
+  #LeftPanel,
+  #RightPanel {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+  }
+
+  h1 {
+    font-size: 4.5vh;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 2.2vh;
+    text-align: center;
+  }
+
+  p {
+    font-size: 1.6vh;
+    line-height: 2.6vh;
+  }
+
+  .ProjectContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ProjectImage {
+    width: 90%;
+    height: auto;
+  }
+
+  .ProjectText {
+    width: 100%;
+    align-items: center;
+  }
+
+  .NavContainer {
+    padding-left: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .NavItem {
+    margin: 0.5rem;
+  }
+
+  #SocialsContainer {
+    position: static;
+    transform: none;
+    margin-top: 3rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .footer-note {
+    font-size: 1.4vh;
+    text-align: center;
+    padding-bottom: 5vh;
+  }
 }
