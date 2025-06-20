@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mahbub Shafin - Personal Site</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="ParticleCanvas"></canvas>
+    <div id="Container">
+      <div id="LeftPanel">
+        <h1>Mahbub Shafin</h1>
+        <h2>Aspiring Software Developer</h2>
+        <p>
+          Computer Science student passionate about full-stack development,
+          embedded engineering, AI, creative problem solving, and building
+          scalable, impactful products.
+        </p>
+
+        <nav class="NavContainer">
+          <div class="NavItem" DataSection="Section1">
+            <div class="NavItemDot"></div>
+            <span class="NavItemText">About</span>
+          </div>
+          <div class="NavItem" DataSection="Section2">
+            <div class="NavItemDot"></div>
+            <span class="NavItemText">Projects</span>
+          </div>
+          <div class="NavItem" DataSection="Section3">
+            <div class="NavItemDot"></div>
+            <span class="NavItemText">Experience</span>
+          </div>
+        </nav>
+
+        <div id="SocialsContainer">
+          <a href="https://github.com/mahbub87" target="_blank" title="GitHub">
+            <img
+              src="Images/GithubIcon.png"
+              alt="GitHub"
+              style="width: 30px; height: 30px"
+            />
+          </a>
+          <a
+            href="mailto:mahbubshafin2003@gmail.com"
+            target="_blank"
+            title="Email"
+          >
+            <img
+              src="Images/EmailIcon.png"
+              alt="Email"
+              style="width: 30px; height: 30px"
+            />
+          </a>
+          <a href="MahbubShafin_Dev_Resume.pdf" target="_blank" title="Resume">
+            <img
+              src="Images/CVIcon.png"
+              alt="Resume"
+              style="width: 30px; height: 30px"
+            />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/mahbubs/"
+            target="_blank"
+            title="LinkedIn"
+          >
+            <img
+              src="Images/LinkedinIcon.png"
+              alt="LinkedIn"
+              style="width: 30px; height: 30px"
+            />
+          </a>
+        </div>
+      </div>
+
+      <div id="RightPanel">
+        <div id="Section1" class="Section">
+          <p>
+            I'm a 4th-year Computer Science student at York University,
+            expecting to graduate in August 2025. Over the past few years, I’ve
+            developed a solid foundation in full-stack development, backend
+            systems, and embedded systems. I’m especially passionate about
+            designing and building modern, scalable web applications that
+            deliver meaningful user experiences. My technical interests extend
+            to areas like e-commerce platforms, data visualization, and systems
+            design—where I enjoy applying creative and practical solutions to
+            real-world problems.
+          </p>
+          <p>
+            Outside of academics, I run my own e-commerce company where I sell
+            Beyblades—a niche I’ve grown into a thriving brand. I built the
+            website from the ground up, handling everything from UI design to
+            payment integration and fulfillment logistics. Through this venture,
+            I’ve gained hands-on experience with web development, SEO,
+            analytics, customer support, and digital marketing. It’s been an
+            exciting challenge that not only strengthened my technical skillset,
+            but also taught me a lot about business, branding, and the
+            importance of user-centric design.
+          </p>
+          <p>
+            In my spare time, I'm usually hanging out with my wonderful
+            girlfriend ❤️, coding 🧑‍💻, gaming 🎮, planning future car mods 🏎️, or
+            making Beyblade videos on TikTok!
+          </p>
+        </div>
+
+        <div id="Section2" class="Section">
+          <a
+            href="https://bey-bazaar.vercel.app"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/beybazaar.png"
+                alt="Bey Bazaar Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p
+                  data-value="Bey Bazaar"
+                  style="color: white; font-weight: bold"
+                >
+                  Bey Bazaar
+                </p>
+                <p>
+                   Full-stack e-commerce web app built with Next.js, TypeScript,
+              Supabase, and Tailwind CSS. Features include user authentication,
+              dynamic product catalog, real-time cart management, and order
+              tracking. Optimized for SEO and performance with SSR, lazy
+              loading, and CI/CD deployment on Vercel. Achieved ~100K views and
+              $200+ in sales within the first month.
+                </p>
+                <div class="Separator"></div>
+                <p>2025</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://github.com/mahbub87/Ecommerce-Store"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/ecommerce.png"
+                alt="E-commerce Platform Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p
+                  data-value="E-commerce Platform"
+                  style="color: white; font-weight: bold"
+                >
+                  E-commerce Platform
+                </p>
+                <p>
+                  Scalable e-commerce platform using React, Spring Boot, MongoDB,
+              and Docker. Includes RESTful APIs, user authentication, admin
+              dashboard, and real-time product filtering. Built with modular
+              architecture for maintainability and deployed via Docker for
+              cross-environment portability.
+                </p>
+                <div class="Separator"></div>
+                <p>2025</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://mapflow.onrender.com"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/mapflow.png"
+                alt="Map Flow Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p
+                  data-value="Map Flow"
+                  style="color: white; font-weight: bold"
+                >
+                  Map Flow
+                </p>
+                <p>
+                  Interactive pathfinding visualizer built with Flask and Canvas
+              API. Showcases algorithms like Dijkstra, A*, BFS, and DFS through
+              animated graph traversal. Features dynamic edge highlighting and
+              city-based node systems to enhance algorithm comprehension and
+              visualization.
+                </p>
+                <div class="Separator"></div>
+                <p>2025</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://yeezydb.onrender.com"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/yeezydb.png"
+                alt="YeezyDB Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p data-value="YeezyDB" style="color: white; font-weight: bold">
+                  YeezyDB
+                </p>
+                <p>
+                   Responsive sneaker catalog web app featuring Kanye West’s Yeezy
+              line, built with Flask, PostgreSQL, and vanilla JS. Includes a
+              custom Python scraper to auto-populate the database with
+              up-to-date sneaker info from public sources. Designed for clean UI
+              and fast querying.
+                </p>
+                <div class="Separator"></div>
+                <p>2024</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://github.com/mahbub87/Simple-VHDL-CPU"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/vhdl.png"
+                alt="VHDL-CPU Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p
+                  data-value="VHDL-CPU"
+                  style="color: white; font-weight: bold"
+                >
+                  VHDL-CPU
+                </p>
+                <p>
+                   This project involves the design and implementation of a Simple
+              Central Processing Unit (CPU) in VHDL for deployment on an FPGA
+              board. The CPU is built with an Arithmetic Logic Unit (ALU) and a
+              Control Unit to process and manage data operations. The system
+              also integrates eight 8-bit registers, a finite state machine
+              (FSM), and a 3x8 decoder to handle instruction processing.
+              Additionally, user interaction is facilitated by a seven-segment
+              display.
+                </p>
+                <div class="Separator"></div>
+                <p>2024</p>
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="https://www.youtube.com/watch?v=xuEDM8mMU2Y"
+            target="_blank"
+            class="Project"
+          >
+            <div class="ProjectContent">
+              <img
+                src="Images/hcs123.png"
+                alt="Morse Code Flasher Image"
+                class="ProjectImage"
+              />
+              <div class="ProjectText">
+                <p
+                  data-value="HCS12 Morse-Code-Flasher"
+                  style="color: white; font-weight: bold"
+                >
+                  HCS12 Morse-Code-Flasher
+                </p>
+                <p>
+                   This project demonstrates a basic application of the HCS12
+              microcontroller (MCU), utilizing peripherals such as a keypad,
+              7-segment display, and an LCD to interact with Morse code input
+              and output. The core functionality is the translation of user
+              input, specifically the letter “A” on the keypad, into its
+              corresponding Morse code sequence. The project includes both
+              hardware-level and software-level features, with real-time
+              interrupts (RTI) and key debounce mechanisms for smooth operation.
+                </p>
+                <div class="Separator"></div>
+                <p>2024</p>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div id="Section3" class="Section">
+          <p>
+            <strong>Founder | Full-Stack Developer</strong> — Bey Bazaar<br />
+            Feb 2025 – Present<br />
+            Developed and launched a performant full-stack e-commerce site using
+            Next.js, TypeScript, Supabase, and Tailwind CSS. Integrated full
+            SSR, SEO optimization, real-time database operations, and secure
+            checkout flow. Led business strategy, product sourcing, branding,
+            and social media marketing. Achieved ~100K+ reach and generated
+            $200+ in early revenue within the first 30 days.
+          </p>
+          <br />
+          <p>
+            <strong>Sales Consultant</strong> — Moores Clothing for Men<br />
+            Sep 2022 – Mar 2023<br />
+            Delivered tailored customer experiences, managed POS workflows, and
+            optimized product placement. Increased store revenue by 15% through
+            effective upselling and membership promotions. Recognized for
+            consistently meeting sales targets and maintaining high customer
+            satisfaction.
+          </p>
+        </div>
+
+        <p class="footer-note">
+          Developed by <m>Mahbub Shafin</m> in <m>Visual Studio Code</m>, built
+          with pure <m>HTML</m>, <m>CSS</m>, and <m>JavaScript</m>.
+        </p>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
