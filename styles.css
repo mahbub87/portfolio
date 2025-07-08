@@ -241,18 +241,18 @@ m {
 @media (max-width: 768px) {
   #Container {
     flex-direction: column;
-    align-items: center;
-    margin-top: 5vh;
     height: auto;
-    gap: 4vh;
-    padding: 0 2vw;
+    overflow: visible;
   }
 
-  #LeftPanel,
+    #LeftPanel {
+    width: 100%;
+    order: 1; /* comes *after* RightPanel */
+  }
+
   #RightPanel {
     width: 100%;
-    height: auto;
-    max-height: 80vh;
+    order: 2; /* comes *first* */
   }
 
   h1 {
