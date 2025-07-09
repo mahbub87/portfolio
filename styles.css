@@ -167,11 +167,12 @@ p {
 }
 
 .ProjectImage {
-  width: 150px;
-  height: 100px;
-  object-fit: cover; /* ensures images are cropped to fit */
+  width: 30vh;
+  height: auto;
+  max-width: 100%;
+  object-fit: cover;
   border-radius: 8px;
-  flex-shrink: 0; /* prevent image from shrinking */
+  flex-shrink: 0;
 }
 
 .ProjectText {
@@ -276,7 +277,7 @@ m {
   }
 
   .ProjectImage {
-    width: 90%;
+    width: 100%;
     height: auto;
   }
 
