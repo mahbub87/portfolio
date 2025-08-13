@@ -39,7 +39,7 @@ if (prefersReducedMotion) numParticles = Math.min(numParticles, 120);
 let isMouseDown = false;
 let lastFrameTime = 0;
 let rafId = null;
-const maxFPS = prefersReducedMotion ? 30 : 60; // target smoothness everywhere
+const targetFPS = prefersReducedMotion ? 30 : 50; // uniform target across devices
 
 // Connection and glow tuning (adaptive)
 let maxConnectionsPerParticle = isLowPower ? 3 : 5;
@@ -72,18 +72,18 @@ function applyDegrade(level) {
   // Level 0 is baseline visuals. Increasing level trades visuals for speed.
   // Map level to adjustments.
   const baseCount = numParticles;
-  const newCount = baseCount * (1 - Math.min(level * 0.12, 0.5));
+  const newCount = baseCount * (1 - Math.min(level * 0.15, 0.6));
   setParticleCount(newCount);
 
   // Reduce connection density and distance
   const baseConn = isLowPower ? 3 : 5;
-  maxConnectionsPerParticle = Math.max(2, Math.round(baseConn - level * 0.5));
-  connectionDistance = Math.max(70, Math.round((isLowPower ? 90 : 100) - level * 5));
+  maxConnectionsPerParticle = Math.max(2, Math.round(baseConn - level * 0.6));
+  connectionDistance = Math.max(65, Math.round((isLowPower ? 90 : 100) - level * 6));
   connectionDistSq = connectionDistance * connectionDistance;
   cellSize = connectionDistance + 20;
 
   // Lower glow area slightly
-  glowScale = Math.max(3, 4 - level * 0.3);
+  glowScale = Math.max(3, 4 - level * 0.35);
 }
 
 const mouse = {
@@ -120,7 +120,7 @@ window.addEventListener("mouseup", () => {
 }, { passive: true });
 
 function resizeCanvas() {
-  const dprCap = prefersReducedMotion ? 1.5 : 2; // keep crisp visuals like before unless reduced motion
+  const dprCap = prefersReducedMotion ? 1.2 : 1.5; // consistent DPR to normalize cost across devices
   const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
@@ -289,8 +289,8 @@ function drawConnections() {
 for (let i = 0; i < numParticles; i++) particles.push(new Particle());
 
 function animate(timestamp) {
-  // FPS cap only when needed (< 60) to avoid choppiness
-  if (maxFPS < 60 && lastFrameTime && timestamp - lastFrameTime < 1000 / maxFPS) {
+  // Enforce uniform FPS target across devices
+  if (lastFrameTime && timestamp - lastFrameTime < 1000 / targetFPS) {
     rafId = requestAnimationFrame(animate);
     return;
   }
@@ -307,20 +307,20 @@ function animate(timestamp) {
   // Draw connections every frame for original visual smoothness (kept fast via spatial hashing)
   drawConnections();
   
-  // Adaptive performance sampling every ~500ms
+  // Adaptive performance sampling every ~400ms
   perf.frames++;
   const now = performance.now();
-  if (now - perf.lastSample >= 500) {
+  if (now - perf.lastSample >= 400) {
     const elapsed = (now - perf.lastSample) / 1000;
     perf.fps = Math.round(perf.frames / elapsed);
     perf.frames = 0;
     perf.lastSample = now;
 
     // Degrade when FPS is low; recover gradually when high
-    if (perf.fps < 50) {
-      perf.degradeLevel = Math.min(perf.degradeLevel + 1, 6);
+    if (perf.fps < targetFPS - 2) { // below target
+      perf.degradeLevel = Math.min(perf.degradeLevel + 1, 8);
       applyDegrade(perf.degradeLevel);
-    } else if (perf.fps > 58 && perf.degradeLevel > 0) {
+    } else if (perf.fps > targetFPS + 6 && perf.degradeLevel > 0) { // ample headroom
       perf.degradeLevel = Math.max(perf.degradeLevel - 1, 0);
       applyDegrade(perf.degradeLevel);
     }
