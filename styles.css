@@ -163,11 +163,12 @@ p {
 .ProjectContent {
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
   gap: 16px; /* space between image and text */
 }
 
 .ProjectImage {
-  width: 30vh;
+  width: 42vh;
   height: auto;
   max-width: 100%;
   object-fit: cover;
@@ -177,6 +178,7 @@ p {
 
 .ProjectText {
   flex: 1; /* allow text to take remaining space */
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
