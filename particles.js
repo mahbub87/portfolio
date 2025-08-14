@@ -228,7 +228,7 @@
           const d = Math.sqrt(d2) || 1;
           const ax = (mouse.x - this.x) / d;
           const ay = (mouse.y - this.y) / d;
-            const s = IDLE_ATTRACT_STRENGTH * (0.4 + 0.6 * this.depth); // far respond less
+            const s = IDLE_ATTRACT_STRENGTH * (0.8 + 1.0 * this.depth); // far respond less
             this.vx += ax * s;
             this.vy += ay * s;
         }
