@@ -1,4 +1,4 @@
-// Tiny, fast black particles with orbit-on-hold and burst-on-release
+// Tiny, fast black particles with orbit-on-hold (no burst)
 // Canvas sits behind all content and ignores pointer events
 
 (() => {
@@ -40,29 +40,31 @@
   // Config
   const AREA = () => window.innerWidth * window.innerHeight;
   const DENSITY = 0.00035; // balanced density
-  const MAX_PARTICLES = 500; // cap for perf
+  const MAX_PARTICLES = 1000; // cap for perf
   const BASE_COUNT = Math.max(200, Math.min(MAX_PARTICLES, Math.floor(AREA() * DENSITY)));
-  const COLOR = '#00000049'; // small black dots
+  const COLOR = '#000'; // solid black
 
   const MAX_SPEED_NORMAL = 2.2; // px/frame (very fast)
   const MAX_SPEED_ORBIT = 10.0;  // allow higher when orbiting
   const MIN_SPEED = 1.2;
-  const WANDER_JITTER = 0.1; // random steering noise
-  const INTERACTION_RADIUS = 300; // px (bigger pull radius)
-  // Electron-like ellipses in multiple rotated planes
-  const ORBIT_PLANES = [0, Math.PI / 3, -Math.PI / 3]; // 0°, +60°, -60°
-  const ORBIT_RINGS = [30, 56, 86, 116]; // base radii
-  const ORBIT_ECC_RATIO = 0.62; // b = a * ratio
-  const ORBIT_STIFFNESS = 0.14; // steering towards target path
-  const ORBIT_OMEGA = [0.14, 0.11, 0.09, 0.075]; // angular speeds per ring
-  const TRAIL_ALPHA = 0.08; // 0..1 fade strength
-  const BG_COLOR = '#FAF7F0';
-  const BURST_SPEED_MIN = 7.5; // outward burst speed on release
-  const BURST_SPEED_MAX = 11.0;
+  const WANDER_JITTER = 0.01; // very small random steering noise
+  const INTERACTION_RADIUS = 250; // px (bigger pull radius)
+  // Circular orbit settings
+  const ORBIT_STIFFNESS = 0.5; // steering towards target path
+  // Snowfall params (used when not orbiting)
+  const FALL_GRAVITY = 0.01; // gentle gravity for slow fall
+  const WIND_BASE = 0.0001; // extremely small wind amplitude
+  const WIND_FREQ = 0.0001; // slower wind change
+  const WIND_JITTER = 0.002; // very subtle per-particle drift
   const DOT_MIN = 0.7; // radius px small
   const DOT_MAX = 1.2;
+  // Release behavior constants
+  const RELEASE_DECAY = 0.94; // stronger per-frame slowdown right after release
+  const RELEASE_SPEED_THRESHOLD = 0.8; // switch to gravity-only a bit sooner
 
   const mouse = { x: -9999, y: -9999, down: false };
+  let time = 0;
+  let wind = 0;
 
   window.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
@@ -76,24 +78,14 @@
     mouse.down = true;
   });
   window.addEventListener('mouseup', () => {
+  // Release: stop orbit capture; keep current velocity, remain free until respawn
     mouse.down = false;
-    // Burst outwards for particles within range at the moment of release
-  for (let i = 0; i < particles.length; i++) {
+    for (let i = 0; i < particles.length; i++) {
       const p = particles[i];
-      const dx = p.x - mouse.x;
-      const dy = p.y - mouse.y;
-      const d2 = dx * dx + dy * dy;
-      if (d2 <= INTERACTION_RADIUS * INTERACTION_RADIUS) {
-        const d = Math.sqrt(d2) || 1;
-        const dirX = dx / d;
-        const dirY = dy / d;
-    const spd = BURST_SPEED_MIN + Math.random() * (BURST_SPEED_MAX - BURST_SPEED_MIN);
-        // Strong outward push with a tiny random skew
-    p.vx = dirX * spd + (Math.random() - 0.5) * 0.8;
-    p.vy = dirY * spd + (Math.random() - 0.5) * 0.8;
-    // Skip clamping for a few frames to let the burst really pop
-    p.burstFrames = 24 + (Math.random() * 10)|0;
+      if (p.isOrbiting) {
+    p.released = true;
         p.isOrbiting = false;
+        p.orbit = null;
       }
     }
   });
@@ -101,27 +93,49 @@
   // Particle system
   class Particle {
     constructor() {
-      this.reset();
+      this.reset(false); // initial scatter across screen
     }
-    reset() {
-      this.x = Math.random() * window.innerWidth;
-      this.y = Math.random() * window.innerHeight;
-      const angle = Math.random() * Math.PI * 2;
-  const speed = MIN_SPEED + Math.random() * (MAX_SPEED_NORMAL - MIN_SPEED);
-      this.vx = Math.cos(angle) * speed;
-      this.vy = Math.sin(angle) * speed;
-      this.r = DOT_MIN + Math.random() * (DOT_MAX - DOT_MIN);
+    reset(spawnAtEdge = false) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (spawnAtEdge) {
+        const topSpawn = Math.random() < 0.7;
+        if (topSpawn) {
+          this.x = Math.random() * w;
+          this.y = -6;
+        } else {
+          const fromLeft = Math.random() < 0.5;
+          this.x = fromLeft ? -6 : w + 6;
+          this.y = Math.random() * (h * 0.8);
+        }
+      } else {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+      }
+  // slow initial drift; snowfall forces will take over
+  this.vx = (Math.random() - 0.5) * 0.25;
+  this.vy = 0.2 + Math.random() * 0.4;
+  this.r = DOT_MIN + Math.random() * (DOT_MAX - DOT_MIN);
+  // rotation for non-circular shape
+  this.angle = Math.random() * Math.PI * 2;
+  this.spin = (Math.random() - 0.5) * 0.06; // subtle rotation
   this.isOrbiting = false;
-  this.burstFrames = 0;
+  // remain free (no snowfall) after release until respawn
+  this.released = false;
+  this.releaseGravity = false; // once true, apply gravity-only while released
   // orbit assignment
   this.orbit = null; // {plane, ring, a, b, alpha, t, omega}
   this.phase = Math.random() * Math.PI * 2;
+  // per-particle terminal fall speed for realistic slow descent
+  this.terminalVy = 0.35 + Math.random() * 0.4; // 0.35..0.75 px/frame
     }
     update() {
       // Random jitter for erratic movement
-  const jitterK = this.isOrbiting ? 0.15 : 1.0; // less jitter in orbit
+  const jitterK = this.isOrbiting ? 0.15 : (this.released ? 0.0 : 1.0); // no jitter when released
   this.vx += (Math.random() - 0.5) * WANDER_JITTER * jitterK;
   this.vy += (Math.random() - 0.5) * WANDER_JITTER * jitterK;
+  // spin update
+  this.angle += this.spin;
 
       // Mouse interaction
       const dx = this.x - mouse.x;
@@ -129,97 +143,110 @@
       const d2 = dx * dx + dy * dy;
       const inRange = d2 <= INTERACTION_RADIUS * INTERACTION_RADIUS;
 
-      if (mouse.down && inRange) {
-        // Capture into nearest ellipse on one of the rotated planes
+  if (mouse.down && inRange) {
+  // capture cancels released state
+  this.released = false;
+  this.releaseGravity = false;
+        // Circular orbit around the mouse
         const d = Math.sqrt(d2) || 1;
-        if (!this.orbit) {
-          let best = null;
-          let bestErr = Infinity;
-          for (let p = 0; p < ORBIT_PLANES.length; p++) {
-            const alpha = ORBIT_PLANES[p];
-            const ca = Math.cos(-alpha), sa = Math.sin(-alpha);
-            // rotate point into plane frame
-            const rx = (this.x - mouse.x) * ca - (this.y - mouse.y) * sa;
-            const ry = (this.x - mouse.x) * sa + (this.y - mouse.y) * ca;
-            for (let r = 0; r < ORBIT_RINGS.length; r++) {
-              const a = ORBIT_RINGS[r];
-              const b = a * ORBIT_ECC_RATIO * (0.9 + Math.random() * 0.2);
-              // compute normalized radius error to ellipse
-              const err = Math.abs(Math.hypot(rx / a, ry / b) - 1);
-              if (err < bestErr) {
-                bestErr = err;
-                best = { plane: p, ring: r, a, b, alpha };
-              }
-            }
-          }
-          if (best) {
-            const idx = Math.max(0, Math.min(ORBIT_OMEGA.length - 1, best.ring));
-            const omega = ORBIT_OMEGA[idx] * (0.9 + Math.random() * 0.2);
-            // initial parameter based on current rotated angle
-            const ca = Math.cos(-best.alpha), sa = Math.sin(-best.alpha);
-            const rx = (this.x - mouse.x) * ca - (this.y - mouse.y) * sa;
-            const ry = (this.x - mouse.x) * sa + (this.y - mouse.y) * ca;
-            const t0 = Math.atan2(ry / best.b, rx / best.a);
-            this.orbit = { ...best, t: t0, omega };
-          }
+  if (!this.orbit) {
+          // clamp radius to keep within a comfortable band
+          const minR = 24;
+          const maxR = Math.max(minR + 6, INTERACTION_RADIUS * 0.9);
+          const r = Math.max(minR, Math.min(maxR, d));
+          const t0 = Math.atan2(dy, dx);
+          const omega = 0.14 * (0.9 + Math.random() * 0.2); // per-particle speed
+          this.orbit = { r, t: t0, omega };
         }
 
         if (this.orbit) {
-          // advance along orbit
+          // advance angle and steer towards circular path
           this.orbit.t += this.orbit.omega;
-          const ca = Math.cos(this.orbit.alpha), sa = Math.sin(this.orbit.alpha);
-          const px = this.orbit.a * Math.cos(this.orbit.t);
-          const py = this.orbit.b * Math.sin(this.orbit.t);
-          // rotate back to world
-          const tx = mouse.x + px * ca - py * sa;
-          const ty = mouse.y + px * sa + py * ca;
+          const tx = mouse.x + this.orbit.r * Math.cos(this.orbit.t);
+          const ty = mouse.y + this.orbit.r * Math.sin(this.orbit.t);
           const steerX = tx - this.x;
           const steerY = ty - this.y;
-          // steer towards path
           this.vx += steerX * ORBIT_STIFFNESS;
           this.vy += steerY * ORBIT_STIFFNESS;
         }
 
         this.isOrbiting = true;
-      } else if (!mouse.down) {
+    } else if (!mouse.down) {
         // When not holding, clear orbit flag gradually
         this.isOrbiting = false;
         this.orbit = null;
+            if (this.released) {
+              // Released behavior
+              if (!this.releaseGravity) {
+                // Stage 1: decelerate gradually until slow enough
+                this.vx *= RELEASE_DECAY;
+                this.vy *= RELEASE_DECAY;
+                const sp2rel = this.vx * this.vx + this.vy * this.vy;
+                if (sp2rel < RELEASE_SPEED_THRESHOLD * RELEASE_SPEED_THRESHOLD) {
+                  this.releaseGravity = true; // switch to gravity-only fall
+                }
+              } else {
+                // Stage 2: gravity-only fall (no wind/drag)
+                this.vy += FALL_GRAVITY;
+                // Optional: cap vertical speed to terminal
+                if (this.vy > this.terminalVy) this.vy = this.terminalVy;
+              }
+            } else {
+          // Snowfall behavior
+          this.vy += FALL_GRAVITY;
+          this.vx += wind * 0.01 + (Math.random() - 0.5) * WIND_JITTER;
+          // horizontal drag and cap to avoid fast sideways motion
+          this.vx *= 0.92;
+          const MAX_SIDE = 0.35;
+          if (this.vx > MAX_SIDE) this.vx = MAX_SIDE;
+          if (this.vx < -MAX_SIDE) this.vx = -MAX_SIDE;
+          // limit fall speed to terminal velocity
+          if (this.vy > this.terminalVy) this.vy = this.terminalVy;
+        }
       }
 
       // Clamp speed
-      const sp2 = this.vx * this.vx + this.vy * this.vy;
-      const max = this.isOrbiting ? MAX_SPEED_ORBIT : MAX_SPEED_NORMAL;
-      const max2 = max * max;
-      if (this.burstFrames > 0) {
-        // Allow temporary exceed; apply light damping to settle back
-        this.burstFrames--;
-        this.vx *= 0.995;
-        this.vy *= 0.995;
-      } else if (sp2 > max2) {
-        const s = Math.sqrt(sp2);
-        this.vx = (this.vx / s) * max;
-        this.vy = (this.vy / s) * max;
+  const sp2 = this.vx * this.vx + this.vy * this.vy;
+  if (!this.released) {
+        const max = this.isOrbiting ? MAX_SPEED_ORBIT : MAX_SPEED_NORMAL;
+        const max2 = max * max;
+        if (sp2 > max2) {
+          const s = Math.sqrt(sp2);
+          this.vx = (this.vx / s) * max;
+          this.vy = (this.vy / s) * max;
+        }
       }
 
       // Integrate
       this.x += this.vx;
       this.y += this.vy;
 
-      // Wrap around edges for continuous flow
+      // Respawn when off-screen (top/side spawn)
       const w = window.innerWidth;
       const h = window.innerHeight;
-      if (this.x < -2) this.x = w + 2;
-      else if (this.x > w + 2) this.x = -2;
-      if (this.y < -2) this.y = h + 2;
-      else if (this.y > h + 2) this.y = -2;
+      if (this.y > h + 8 || this.x < -8 || this.x > w + 8) {
+        this.reset(true);
+        this.released = false;
+  this.releaseGravity = false;
+      }
     }
     draw() {
+      // Draw a small snowflake: 6-armed asterisk (rotates subtly)
+      const arm = Math.max(1.2, this.r * 2.8);
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.strokeStyle = COLOR;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-      ctx.fillStyle = COLOR;
-      ctx.globalAlpha = 0.9;
-      ctx.fill();
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI / 3;
+        const ca = Math.cos(a), sa = Math.sin(a);
+        ctx.moveTo(-arm * ca, -arm * sa);
+        ctx.lineTo(arm * ca, arm * sa);
+      }
+      ctx.stroke();
+      ctx.restore();
     }
   }
 
@@ -227,11 +254,11 @@
   // no debug overlays
 
   function loop() {
-  // Trails: fade towards background color
-  ctx.globalAlpha = TRAIL_ALPHA;
-  ctx.fillStyle = BG_COLOR;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.globalAlpha = 1;
+  // Clear fully each frame (no trails)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // update wind over time
+  time += 1;
+  wind = Math.sin(time * WIND_FREQ) * WIND_BASE;
 
     // Draw
     for (let i = 0; i < particles.length; i++) {
