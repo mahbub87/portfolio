@@ -40,14 +40,14 @@
   // Config
   const AREA = () => window.innerWidth * window.innerHeight;
   const DENSITY = 0.00035; // balanced density
-  const MAX_PARTICLES = 1000; // cap for perf
+  const MAX_PARTICLES = 500; // cap for perf
   const BASE_COUNT = Math.max(200, Math.min(MAX_PARTICLES, Math.floor(AREA() * DENSITY)));
   const COLOR = '#00000049'; // small black dots
 
   const MAX_SPEED_NORMAL = 2.2; // px/frame (very fast)
   const MAX_SPEED_ORBIT = 10.0;  // allow higher when orbiting
   const MIN_SPEED = 1.2;
-  const WANDER_JITTER = 0.25; // random steering noise
+  const WANDER_JITTER = 0.1; // random steering noise
   const INTERACTION_RADIUS = 300; // px (bigger pull radius)
   // Electron-like ellipses in multiple rotated planes
   const ORBIT_PLANES = [0, Math.PI / 3, -Math.PI / 3]; // 0°, +60°, -60°
