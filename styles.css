@@ -10,7 +10,7 @@
 }
 
 body {
-  background: transparent;
+  background: #FAF7F0; /* cream/off-white */
   color: #d1d5db;
   height: 100%;
   scroll-behavior: smooth;
@@ -22,6 +22,8 @@ body {
   gap: 2vh; /* spacing between left and right panels */
   margin-top: 10vh;
   height: 90vh;
+  position: relative;
+  z-index: 10; /* ensure above #bg-particles */
 }
 
 #LeftPanel,
@@ -43,7 +45,7 @@ body {
 h1 {
   font-size: 5.5vh;
   margin: 0 0 1vh 0;
-  color: white;
+  color: #111;
   font-weight: bold;
   pointer-events: auto;
 }
@@ -51,7 +53,7 @@ h1 {
 h2 {
   font-size: 2vh;
   margin: 0 0 2vh 0;
-   color: #e5e7eb;
+  color: #111;
   font-weight: normal;
   pointer-events: auto;
 }
@@ -59,7 +61,7 @@ h2 {
 p {
   font-size: 1.6vh;
   margin: 0 0 1.5vh 0;
-  color: #cbd5e1;
+  color: #111;
   line-height: 2.8vh;
   pointer-events: auto;
 }
@@ -85,7 +87,7 @@ p {
 
 .NavItem:hover .NavItemText {
   transform: translateX(6px);
-  color: #0ea5e9; /* sky-500 */
+  color: #111;
 }
 
 .NavItem:hover .NavItemDot {
@@ -104,12 +106,12 @@ p {
 
 .NavItemText {
   font-weight: 600;
-  color: #e2e8f0;
+  color: #111;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 .NavItem.active .NavItemText {
   transform: translateX(6px);
-  color: #0ea5e9;
+  color: #111;
 }
 
 .NavItem.active .NavItemDot {
@@ -129,7 +131,7 @@ p {
 }
 .NavItem:hover .NavItemText,
 .NavItem.active .NavItemText {
-  color: #38bdf8; /* sky-400 for better visibility */
+  color: #111;
 }
 .Project {
   margin-bottom: 2vh;
@@ -150,13 +152,13 @@ p {
 .Project p {
   user-select: none;
   font-size: 1.5vh;
-  color: #94a3b8;
+  color: #111;
   line-height: 2.5vh;
   margin-bottom: 0.5vh;
 }
 
 .Project p:first-child {
-  color: white;
+  color: #111;
   font-weight: bold;
   margin-bottom: 1vh; /* Space below title */
 }
@@ -201,7 +203,7 @@ p {
 
 #SocialsContainer a {
   transform: scale(1);
-  filter: invert(100%) brightness(50%);
+  filter: none;
   transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
   pointer-events: auto;
   display: inline-flex;
@@ -211,33 +213,22 @@ p {
 
 #SocialsContainer a:hover {
   transform: scale(1.2) translateY(-3px);
-  filter: invert(100%) brightness(100%);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  filter: none;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 }
 
 m {
   font-weight: 600;
-  color: #67e8f9;
+  color: #111;
 }
 
 .footer-note {
   padding-bottom: 95vh;
   font-size: 1.25vh;
   line-height: 2.2vh;
-  color: #a1a1aa;
+  color: #111;
 }
 
-#ParticleCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  background: #090d18;
-  pointer-events: none;
-  display: block;
-}
 
 
 @media (max-width: 768px) {
