@@ -27,6 +27,7 @@ const observer = new IntersectionObserver(entries => {
 
 sections.forEach(section => observer.observe(section));
 
+
 // Fallback: ensure particles script is loaded
 (function ensureParticles() {
   // if canvas or global flag missing after a tick, try injecting
@@ -40,5 +41,24 @@ sections.forEach(section => observer.observe(section));
       document.body.appendChild(s);
     }
   }, 600);
+})();
+
+// Global wheel forwarding: always scroll the RightPanel, regardless of cursor location
+(function globalScrollToRightPanel() {
+  const rightPanel = document.getElementById('RightPanel');
+  if (!rightPanel) return;
+  const handler = (e) => {
+    // Scale wheel amount if deltaMode is lines (Firefox); otherwise pixels
+    const scale = e.deltaMode === 1 ? 16 : 1;
+    const dy = e.deltaY * scale;
+    const dx = e.deltaX * scale;
+    // Apply vertical primarily; support horizontal if user scrolls sideways
+    if (dy !== 0 || dx !== 0) {
+      e.preventDefault();
+      rightPanel.scrollBy({ top: dy, left: dx, behavior: 'auto' });
+    }
+  };
+  // Use non-passive to allow preventDefault
+  window.addEventListener('wheel', handler, { passive: false });
 })();
 
