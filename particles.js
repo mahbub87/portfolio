@@ -39,15 +39,15 @@
 
   // Config
   const AREA = () => window.innerWidth * window.innerHeight;
-  const DENSITY = 0.00035; // balanced density
-  const MAX_PARTICLES = 500; // cap for perf
-  const BASE_COUNT = Math.max(200, Math.min(MAX_PARTICLES, Math.floor(AREA() * DENSITY)));
-  // Solid black for strokes (no theme switching)
-  const COLOR = '#000000';
+  const DENSITY = 0.00015; // reduced density for less prominence
+  const MAX_PARTICLES = 300; // reduced cap for perf
+  const BASE_COUNT = Math.max(100, Math.min(MAX_PARTICLES, Math.floor(AREA() * DENSITY)));
+  // Lighter color with opacity for subtlety
+  const COLOR = 'rgba(0, 0, 0, 0.3)'; // 30% opacity black
 
-  const MAX_SPEED_NORMAL = 2.2; // px/frame (very fast)
-  const MAX_SPEED_ORBIT = 10.0;  // allow higher when orbiting
-  const MIN_SPEED = 1.2;
+  const MAX_SPEED_NORMAL = 1.2; // reduced speed for subtlety
+  const MAX_SPEED_ORBIT = 6.0;  // reduced orbit speed
+  const MIN_SPEED = 0.8;
   const WANDER_JITTER = 0.01; // very small random steering noise
   const INTERACTION_RADIUS = 150; // px (pull radius)
   // Orbit settings

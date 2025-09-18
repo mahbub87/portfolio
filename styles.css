@@ -18,52 +18,72 @@ body {
 #Container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center; /* Center vertically */
   gap: 2vh; /* spacing between left and right panels */
-  margin-top: 10vh;
-  height: 90vh;
+  min-height: 100vh; /* Full viewport height */
+  padding: 5vh 2vh; /* Add some padding for breathing room */
   position: relative;
   z-index: 10; /* ensure above #bg-particles */
+  max-width: 1400px; /* Constrain total width */
+  margin: 0 auto; /* Center the container */
 }
 
 #LeftPanel,
 #RightPanel {
-  width: 70vh;
-  height: 100%;
+  flex: 1; /* Equal flex growth */
+  width: 0; /* Reset width to let flex handle sizing */
+  max-width: 600px; /* Cap the maximum width */
+  min-width: 350px; /* Ensure minimum readable width */
+  height: 80vh; /* Fixed height instead of max-height */
   overflow-y: auto;
-}
-
-#RightPanel {
-  pointer-events: auto;
+  background: rgba(250, 247, 240, 0.08); /* Much more transparent for true glass */
+  backdrop-filter: blur(5px); /* Stronger blur for glass effect */
+  border-radius: 20px;
+  padding: 3vh 4vh;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 
+              0 0 0 1px rgba(255, 255, 255, 0.05) inset; /* Subtle glass border */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* Hide scrollbars for both panels */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */
 }
+
+#LeftPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Push content to top and socials to bottom */
+}
+
+#LeftPanel::-webkit-scrollbar,
 #RightPanel::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
 
 h1 {
   font-size: 5.5vh;
-  margin: 0 0 1vh 0;
+  margin: 0 0 0.5vh 0; /* Reduced from 1vh to 0.5vh */
   color: #111;
   font-weight: bold;
   pointer-events: auto;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
   font-size: 2vh;
-  margin: 0 0 2vh 0;
-  color: #111;
+  margin: 0 0 0 0; /* Reduced from 2vh to 1vh */
+  color: #333;
   font-weight: normal;
   pointer-events: auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 p {
   font-size: 1.6vh;
-  margin: 0 0 1.5vh 0;
-  color: #111;
+  margin: 0 0 1vh 0; /* Reduced from 1.5vh to 1vh */
+  color: #222;
   line-height: 2.8vh;
   pointer-events: auto;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .Section {
@@ -72,7 +92,7 @@ p {
 
 .NavContainer {
   margin-top: 5rem;
-   padding-left: 1rem;
+  padding-left: 0; /* Remove padding since no background */
 }
 
 .NavItem {
@@ -136,31 +156,38 @@ p {
 .Project {
   margin-bottom: 2vh;
   padding: 1.5vh;
-  border-radius: 0.75vh;
-
+  border-radius: 12px;
   display: flex;
   flex-direction: column; /* Stack project name, description, and date vertically */
   text-decoration: none;
-  background-color: transparent;
-  transition: background-color 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.06); /* Much more transparent */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .Project:hover {
   background-color: rgba(34, 211, 238, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.2);
 }
 
 .Project p {
   user-select: none;
   font-size: 1.5vh;
-  color: #111;
+  color: #222;
   line-height: 2.5vh;
   margin-bottom: 0.5vh;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .Project p:first-child {
   color: #111;
   font-weight: bold;
   margin-bottom: 1vh; /* Space below title */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 .ProjectContent {
   display: flex;
@@ -190,14 +217,12 @@ p {
   transition: transform 0.3s ease;
 }
 #SocialsContainer {
-  margin-top: 5rem;
-  position: absolute;
-  top: 80vh;
-  transform: translateY(-100%);
+  margin-top: 3rem;
+  position: relative; /* Changed from absolute for better positioning */
   display: flex;
   justify-content: flex-start;
   gap: 2.5vh;
-  padding-left: 1rem; /* Prevents hover scale clipping */
+  padding: 1.5rem 0; /* Remove horizontal padding since no background */
   overflow: visible;
 }
 
@@ -235,17 +260,19 @@ m {
   #Container {
     flex-direction: column;
     align-items: center;
-    margin-top: 5vh;
-    height: auto;
+    min-height: 100vh;
+    justify-content: center;
     gap: 4vh;
-    padding: 0 2vw;
+    padding: 5vh 2vw;
   }
 
   #LeftPanel,
   #RightPanel {
-    width: 100%;
-    height: auto;
+    width: 90vw; /* Responsive width for mobile */
+    max-width: none;
+    min-width: none;
     max-height: none;
+    height: auto;
   }
 
   h1 {
